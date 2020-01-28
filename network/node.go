@@ -26,7 +26,7 @@ type ServerNode struct {
 	MasterAddress string
 }
 
-//
+// ExposeToMaster comment
 func (server ServerNode) ExposeToMaster(db1 *models.DBHandler) {
 
 	err := rpc.Register(db1)
@@ -56,6 +56,26 @@ func (server ServerNode) NotifyMasterUser(user models.User) {
 		log.Fatal("error")
 	}
 	client.Call("ServerMaster.NotifyNodesUser", user, &reply)
+}
+
+// NotifyMasterBlogCreate comment
+func (server ServerNode) NotifyMasterBlogCreate(blog models.Blog) {
+	var reply models.DBHandler
+	client, err := rpc.DialHTTP("tcp", server.MasterAddress)
+	if err != nil {
+		log.Fatal("error")
+	}
+	client.Call("ServerMaster.NotifyNodesBlogCreate", blog, &reply)
+}
+
+// NotifyMasterBlogUpdate comment
+func (server ServerNode) NotifyMasterBlogUpdate(blog models.Blog) {
+	var reply models.DBHandler
+	client, err := rpc.DialHTTP("tcp", server.MasterAddress)
+	if err != nil {
+		log.Fatal("error")
+	}
+	client.Call("ServerMaster.NotifyNodesBlogUpdate", blog, &reply)
 }
 
 // ConnectToMaster comment

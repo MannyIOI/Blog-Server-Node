@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -72,6 +73,7 @@ func (db_handler *DBHandler) GetBlog(identifier int, reply *Blog) error {
 
 // CreateUser comment
 func (db_handler *DBHandler) CreateUser(user User, reply *User) error {
+	fmt.Println("In DBhandler CreateUser called remotely ", user)
 	db_handler.db.Create(&user)
 	return db_handler.GetUser(user.Username, reply)
 }

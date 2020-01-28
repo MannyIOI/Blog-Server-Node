@@ -1,7 +1,8 @@
 package api
 
 import (
-	"blogServer/models"
+	"blogServerNode/models"
+	"blogServerNode/network"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -13,7 +14,8 @@ import (
 
 // Server comment
 type Server struct {
-	Database *models.DBHandler
+	Database   *models.DBHandler
+	NodeServer network.ServerNode
 }
 
 func (server Server) getUser(w http.ResponseWriter, r *http.Request) {
@@ -38,21 +40,25 @@ func (server Server) createUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 
 	_ = json.NewDecoder(r.Body).Decode(&user)
-
-	var reply models.User
-	server.Database.CreateUser(user, &reply)
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(&reply)
+	fmt.Println("------>", server.NodeServer)
+	server.NodeServer.NotifyMasterUser(user)
+	// var reply models.User
+	// server.Database.CreateUser(user, &reply)
+	// w.WriteHeader(http.StatusOK)
+	// json.NewEncoder(w).Encode(&reply)
 
 }
 
 // StartAPI comment
-func StartAPI(db models.DBHandler, address string, port int) {
-	server := Server{Database: &db}
+func StartAPI(db models.DBHandler, address string, port int, node network.ServerNode) {
+	server := Server{Database: &db, NodeServer: node}
+
+	// server.NodeServer
 	r := mux.NewRouter()
 	api := r.PathPrefix("").Subrouter()
 
 	api.HandleFunc("/user/{username}/", server.getUser).Methods("GET")
+
 	api.HandleFunc("/user/", server.createUser).Methods("POST")
 
 	fmt.Println("Listening on ", address+":"+strconv.Itoa(port))

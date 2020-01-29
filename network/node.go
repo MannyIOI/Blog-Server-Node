@@ -69,13 +69,21 @@ func (server ServerNode) NotifyMasterBlogCreate(blog models.Blog) {
 }
 
 // NotifyMasterBlogUpdate comment
-func (server ServerNode) NotifyMasterBlogUpdate(blog models.Blog) {
-	var reply models.DBHandler
+func (server ServerNode) NotifyMasterBlogUpdate(blog models.Blog, reply models.Blog) {
 	client, err := rpc.DialHTTP("tcp", server.MasterAddress)
 	if err != nil {
 		log.Fatal("error")
 	}
 	client.Call("ServerMaster.NotifyNodesBlogUpdate", blog, &reply)
+}
+
+// NotifyMasterBlogUpdateTitle comment
+func (server ServerNode) NotifyMasterBlogUpdateTitle(blog models.Blog, reply models.Blog) {
+	client, err := rpc.DialHTTP("tcp", server.MasterAddress)
+	if err != nil {
+		log.Fatal("error")
+	}
+	client.Call("ServerMaster.NotifyNodesBlogTitleUpdate", blog, &reply)
 }
 
 // ConnectToMaster comment

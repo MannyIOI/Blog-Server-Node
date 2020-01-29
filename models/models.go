@@ -58,6 +58,12 @@ func (db_handler *DBHandler) GetUser(username string, reply *User) error {
 	return nil
 }
 
+// GetAllUsers comment
+func (db_handler *DBHandler) GetAllUsers(reply *[]User) error {
+	db_handler.db.Find(reply)
+	return nil
+}
+
 // GetAllBlogs comment
 func (db_handler *DBHandler) GetAllBlogs(reply *[]Blog) error {
 	db_handler.db.Find(reply)
@@ -85,6 +91,13 @@ func (db_handler *DBHandler) CreateBlog(blog Blog, reply *Blog) error {
 
 // UpdateBlogContent comment
 func (db_handler *DBHandler) UpdateBlogContent(blog Blog, reply *Blog) error {
+	// fmt.Println("-->", blog)
 	db_handler.db.Model(&blog).Update("BlogContent", blog.BlogContent)
+	return db_handler.GetBlog(blog.ID, reply)
+}
+
+// UpdateBlogTitle comment
+func (db_handler *DBHandler) UpdateBlogTitle(blog Blog, reply *Blog) error {
+	db_handler.db.Model(&blog).Update("BlogTitle", blog.BlogTitle)
 	return db_handler.GetBlog(blog.ID, reply)
 }

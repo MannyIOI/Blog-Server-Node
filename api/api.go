@@ -19,6 +19,7 @@ type Server struct {
 }
 
 func (server Server) getUser(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	pathParams := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 
@@ -36,28 +37,36 @@ func (server Server) getUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server Server) createUser(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	w.Header().Set("Content-Type", "application/json")
 	var user models.User
 
 	_ = json.NewDecoder(r.Body).Decode(&user)
 	server.NodeServer.NotifyMasterUser(user)
+	json.NewEncoder(w).Encode(user)
 }
 
 func (server Server) createBlog(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	w.Header().Set("Content-Type", "application/json")
 	var blog models.Blog
 	_ = json.NewDecoder(r.Body).Decode(&blog)
 	server.NodeServer.NotifyMasterBlogCreate(blog)
+	json.NewEncoder(w).Encode(blog)
 }
 
 func (server Server) updateBlog(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	w.Header().Set("Content-Type", "application/json")
 	var blog models.Blog
+	var reply models.Blog
 	_ = json.NewDecoder(r.Body).Decode(&blog)
-	server.NodeServer.NotifyMasterBlogUpdate(blog)
+	server.NodeServer.NotifyMasterBlogUpdate(blog, reply)
+	json.NewEncoder(w).Encode(reply)
 }
 
 func (server Server) getBlog(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	pathParams := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 
@@ -79,11 +88,18 @@ func (server Server) getBlog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server Server) getAllBlogs(w http.ResponseWriter, r *http.Request) {
+	enableCors(&w)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	var reply []models.Blog
 	server.Database.GetAllBlogs(&reply)
 	json.NewEncoder(w).Encode(&reply)
+}
+
+func enableCors(w *http.ResponseWriter) {
+
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+	(*w).Header().Set("Access-Control-Allow-Headers", "*")
 }
 
 // StartAPI comment
@@ -98,9 +114,9 @@ func StartAPI(db models.DBHandler, address string, port int, node network.Server
 
 	api.HandleFunc("/user/", server.createUser).Methods("POST")
 
-	api.HandleFunc("/blog/", server.getBlog).Methods("GET")
+	api.HandleFunc("/blog/{blogIdentifier}", server.getBlog).Methods("GET")
 	api.HandleFunc("/blog/", server.createBlog).Methods("POST")
-	api.HandleFunc("/blog/", server.updateBlog).Methods("PUT")
+	api.HandleFunc("/updateBlog/", server.updateBlog).Methods("POST")
 
 	api.HandleFunc("/blogs/", server.getAllBlogs).Methods("GET")
 

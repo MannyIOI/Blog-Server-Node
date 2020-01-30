@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -66,7 +65,7 @@ func (db_handler *DBHandler) GetAllUsers(nullObject string, reply *[]User) error
 
 // GetAllBlogs comment
 func (db_handler *DBHandler) GetAllBlogs(nullObject string, reply *[]Blog) error {
-	db_handler.db.Find(reply)
+	db_handler.db.Order("ID DESC").Find(reply)
 	return nil
 }
 
@@ -91,7 +90,6 @@ func (db_handler *DBHandler) CreateBlog(blog Blog, reply *Blog) error {
 // UpdateBlogContent comment
 func (db_handler *DBHandler) UpdateBlogContent(blog Blog, reply *Blog) error {
 	// fmt.Println("-->", blog)
-
 	db_handler.db.Model(&blog).Update("BlogContent", blog.BlogContent)
 	return db_handler.GetBlog(blog.ID, reply)
 }
@@ -104,7 +102,6 @@ func (db_handler *DBHandler) UpdateBlogTitle(blog Blog, reply *Blog) error {
 
 // BatchInsertBlogs comment
 func (db_handler *DBHandler) BatchInsertBlogs(blog []Blog, reply *[]Blog) error {
-	fmt.Println("BatchInsertBlogs remote ", blog)
 	for index := 0; index < len(blog); index++ {
 		db_handler.db.Create(&blog[index])
 	}

@@ -88,11 +88,12 @@ func (server Server) getBlog(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server Server) getAllBlogs(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Get all blogs called remotely")
 	enableCors(&w)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	var reply []models.Blog
-	server.Database.GetAllBlogs(&reply)
+	server.Database.GetAllBlogs("nil", &reply)
 	json.NewEncoder(w).Encode(&reply)
 }
 
